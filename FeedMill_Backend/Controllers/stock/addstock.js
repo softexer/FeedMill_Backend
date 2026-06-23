@@ -14,6 +14,7 @@ exports.addPurchasedStock = async (req, res) => {
             supplierPhone,
             remarks
         } = req.body;
+        
 
         if (   !stockPoint|| !quantity || !ratePerUnit) {
             return res.status(400).json({
