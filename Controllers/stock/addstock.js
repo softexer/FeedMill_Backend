@@ -1,4 +1,3 @@
-const db = require("../stock");
 
 const PurchasedStock = ('../../app/Model/addstock');
 
