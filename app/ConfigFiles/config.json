@@ -1,0 +1,6 @@
+
+{
+  "connectionString":"mongodb+srv://protasker2024_db_user:mEXOwAVXhUynKieO@cluster0.bmyy3zn.mongodb.net/vedasfeed?retryWrites=true",
+  "apiURL": "http://localhost:3000/api",
+  "secretkey":"vedasform2026"
+}
