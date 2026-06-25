@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
-
-const addStockSchema = new mongoose.Schema(
+var dbs = require('./DBConnection')
+var schema = mongoose.Schema;
+const addStockSchema = new schema(
     {
         stockPointID:{
          type: String,
@@ -23,32 +24,31 @@ const addStockSchema = new mongoose.Schema(
         unit: {
             type: String,
             required: true,
-            trim: true,
             default: 'KG',
         },
         ratePerUnit: {
             type: Number,
             required: true,
-            min: 0,
+            default: 0,
         },
         totalAmount: {
             type: Number,
             required: true,
-            min: 0,
+            default: 0,
         },
         supplierName: {
             type: String,
-            trim: true,
+           
             default: '',
         },
         supplierPhone: {
             type: String,
-            trim: true,
+          
             default: '',
         },
         remarks: {
             type: String,
-            trim: true,
+           
             default: '',
         },
     },
@@ -56,5 +56,5 @@ const addStockSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
-
-module.exports = mongoose.model('AddStock', addStockSchema);
+dbs.connectToDB();
+module.exports = mongoose.model('AddStock', addStockSchema)

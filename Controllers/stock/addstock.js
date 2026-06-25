@@ -1,5 +1,5 @@
 
-const PurchasedStock = ('../../app/Model/addstock');
+const PurchasedStock = ('../../');
 
 exports.addPurchasedStock = async (req, res) => {
     try {
