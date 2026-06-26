@@ -1,5 +1,5 @@
 
-const PurchasedStock = ('../../app/Model/addstock');
+const PurchasedStock = require('../../app/Models/addstock.js');
 
 exports.addPurchasedStock = async (req, res) => {
     try {
@@ -11,7 +11,8 @@ exports.addPurchasedStock = async (req, res) => {
             ratePerUnit,
             supplierName,
             supplierPhone,
-            remarks
+            remarks,
+            timestamp
         } = req.body;
         
 
@@ -44,7 +45,8 @@ exports.addPurchasedStock = async (req, res) => {
             totalAmount,
             supplierName: supplierName || null,
             supplierPhone: supplierPhone || null,
-            remarks: remarks || null
+            remarks: remarks || null,
+            timestamp: timestamp 
         });
 
         return res.status(200).json({
