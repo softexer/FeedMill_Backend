@@ -14,24 +14,33 @@ var StockData = require('../../app/Models/addstock.js');
                 message: "stockPoint is required"
             });
         }
-        const stockEntry = await StockData.aggregate([
-            { $match: { stockPoint } },
-            { $group: {
-            _id: "$materialName",
+       const stockEntry = await StockData.aggregate([
+    {
+        $match: {
+            $expr: {
+                $eq: [
+                    { $toLower: "$stockPoint" },
+                    stockPoint.toLowerCase()
+                ]
+            }
+        }
+    },
+    {
+        $group: {
+            _id: { $toLower: "$materialName" },
             totalQuantity: { $sum: "$quantity" },
-            totalUnit:{$sum:"$unit"},
             totalAmount: { $sum: "$totalAmount" }
-
-            }},
-            { $project: {
+        }
+    },
+    {
+        $project: {
             _id: 0,
             materialName: "$_id",
             totalQuantity: 1,
-            totalUnit:1,
-            totalAmount:1
-            }}
-        ]);
-
+            totalAmount: 1
+        }
+    }
+]);
         if (!stockEntry) {
             return res.status(404).json({
                 success: false,

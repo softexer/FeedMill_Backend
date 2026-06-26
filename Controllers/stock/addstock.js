@@ -36,7 +36,7 @@ exports.addPurchasedStock = async (req, res) => {
         const totalAmount = qty * rate;
 
         const stockEntry = await PurchasedStock.create({
-            stockPointID: stockPoint || `SP-${require('crypto').randomBytes(8).toString('hex')}`,
+            stockPointID: `SP-${require('crypto').randomBytes(8).toString('hex')}`,
             stockPoint: stockPoint || null,
             materialName: materialName || null,
             quantity: qty,
