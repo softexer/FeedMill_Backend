@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 var dbs = require('./DBConnection')
 var schema = mongoose.Schema;
-const addStockSchema = new schema(
+const addStockSchema =  new mongoose.Schema(
     {
         stockPointID:{
          type: String,
@@ -57,4 +57,5 @@ const addStockSchema = new schema(
     }
 );
 dbs.connectToDB();
+
 module.exports = mongoose.model('AddStock', addStockSchema)
