@@ -2,25 +2,37 @@ const mongoose = require('mongoose');
 
 const rawMaterialSchema = new mongoose.Schema(
     {
-        rawmaterialID:{
+        adminrawmaterialID: {
             type: String,
             required: true,
         },
-        stockPoints:{
-            type:Array,
-            required:false,
-            default:[]
-        },
-        rawmaterials:{
-             type:Array,
-            required:false,
-            default:[]
-        },
-        feedBags:{
-             type:Array,
-            required:false,
-            default:[]
-        }
+        stockPoints: [
+            {
+                stockPointID: String,
+                stockPointName: {
+                    type: String,
+                    unique: true
+                }
+            }
+        ],
+        rawmaterials: [
+            {
+                rawMaterialID: String,
+                rawMaterialName: {
+                    type: String,
+                    unique: true
+                }
+            }
+        ],
+        feedBags: [
+            {
+                feedBagID: String,
+                feedBagName: {
+                    type: String,
+                    unique: true
+                }
+            }
+        ],
     }
 );
 

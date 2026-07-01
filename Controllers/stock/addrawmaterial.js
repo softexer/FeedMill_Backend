@@ -10,7 +10,7 @@ const addrawmateriallist = async (req, res) => {
             feedBags = []
 
         } = req.body;
-
+        var params = req.body;
         if (!Array.isArray(stockPoints) || !Array.isArray(rawmaterials) || !Array.isArray(feedBags)) {
             return res.status(400).json({
                 success: false,
@@ -18,7 +18,7 @@ const addrawmateriallist = async (req, res) => {
             });
         }
 
-
+        console.log("sttock", stockPoints);
         var stockarray = [];
         var rawmaterialarray = [];
         var feedbagarray = [];
@@ -33,43 +33,78 @@ const addrawmateriallist = async (req, res) => {
                 stockPointName
             });
         }
-        for (var i = 0; i < params.rawmaterials.length; i++) {
-            const material = params.rawmaterials[i];
+        console.log(stockarray);
+        for (var i = 0; i < rawmaterials.length; i++) {
+             const point = rawmaterials[i];
+            const rawMaterialName = typeof point === "string"
+                ? point
+                : point.rawMaterialName || point.rawmaterialname || point.name;
             rawmaterialarray.push({
                 rawMaterialID: "raw@" + idb.GenerateIDS(5),
-                rawMaterialName: material.rawMaterialName
+                rawMaterialName: rawMaterialName
             });
         }
-        for (var i = 0; i < params.feedBags.length; i++) {
-            const feed = params.feedBags[i];
+        for (var i = 0; i < feedBags.length; i++) {
+          const point = feedBags[i];
+            const feedBagName = typeof point === "string"
+                ? point
+                : point.feedBagName || point.feedbagname || point.name;
             feedbagarray.push({
                 feedBagID: "feed@" + idb.GenerateIDS(5),
-                feedBagName: feed.feedBagName
+                feedBagName: feedBagName
             });
         }
 
 
         const payload = {
-            rawmaterialID: rawmaterialID || "raw@" + idb.GenerateIDS(5),
+            adminrawmaterialID: rawmaterialID || "raw@" + idb.GenerateIDS(5),
             stockPoints: stockarray,
             rawmaterials: rawmaterialarray,
             feedBags: feedbagarray
         };
-        var findstockpointsquery = await rawmateriallist.find({});
+        const doc = await rawmateriallist.findOne({});
 
-        if (findstockpointsquery.length > 0) {
+        if (doc) {
+
+            const existingStockPoints = doc.stockPoints.map(
+                item => item.stockPointName.toLowerCase()
+            );
+
+            const existingRawMaterials = doc.rawmaterials.map(
+                item => item.rawMaterialName.toLowerCase()
+            );
+
+            const existingFeedBags = doc.feedBags.map(
+                item => item.feedBagName.toLowerCase()
+            );
+
+            const newStockPoints = stockarray.filter(
+                item => !existingStockPoints.includes(item.stockPointName.toLowerCase())
+            );
+
+            const newRawMaterials = rawmaterialarray.filter(
+                item => !existingRawMaterials.includes(item.rawMaterialName.toLowerCase())
+            );
+
+            const newFeedBags = feedbagarray.filter(
+                item => !existingFeedBags.includes(item.feedBagName.toLowerCase())
+            );
+
             await rawmateriallist.updateOne(
-                { _id: findstockpointsquery[0]._id },
+                { _id: doc._id },
                 {
                     $push: {
-                        stockPoints: { $each: stockarray },
-                        rawmaterials: { $each: rawmaterialarray },
-                        feedBags: { $each: feedbagarray }
+                        stockPoints: { $each: newStockPoints },
+                        rawmaterials: { $each: newRawMaterials },
+                        feedBags: { $each: newFeedBags }
                     }
                 }
             );
+
         } else {
+
             await rawmateriallist.create(payload);
+
         }
 
         return res.status(200).json({
@@ -111,4 +146,4 @@ const fetchadminstockpoints = async (req, res) => {
         });
     }
 };
-module.exports = { addrawmateriallist,fetchadminstockpoints };
+module.exports = { addrawmateriallist, fetchadminstockpoints };
