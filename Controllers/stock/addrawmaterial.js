@@ -291,6 +291,18 @@ const updateStockPoints = async (req, res) => {
             }
             
 
+            if (!exists) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Stock point not found"
+                });
+            }
+
+            await rawmateriallist.updateOne(
+                { _id: doc._id },
+                { $pull: { stockPoints: { stockPointID } } }
+            );
+
             return res.status(200).json({
                 success: true,
                 message: "Stock point deleted successfully"
