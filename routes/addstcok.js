@@ -18,4 +18,10 @@ router.post("/addadminstockpoints", (req, res) => {
 router.get("/fetchadminstockpoints", (req, res) => {
     adminstcokpoints.fetchadminstockpoints(req, res)
 })
+router.put("/updatestockpoints", (req, res) => {
+    adminstcokpoints.updateStockPoints(req, res)
+})
+router.delete("/deletestockpoints", (req, res) => {
+    adminstcokpoints.deleteStockPoints(req, res)
+})
 module.exports = router;

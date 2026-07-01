@@ -35,7 +35,7 @@ const addrawmateriallist = async (req, res) => {
         }
         console.log(stockarray);
         for (var i = 0; i < rawmaterials.length; i++) {
-             const point = rawmaterials[i];
+            const point = rawmaterials[i];
             const rawMaterialName = typeof point === "string"
                 ? point
                 : point.rawMaterialName || point.rawmaterialname || point.name;
@@ -45,7 +45,7 @@ const addrawmateriallist = async (req, res) => {
             });
         }
         for (var i = 0; i < feedBags.length; i++) {
-          const point = feedBags[i];
+            const point = feedBags[i];
             const feedBagName = typeof point === "string"
                 ? point
                 : point.feedBagName || point.feedbagname || point.name;
@@ -146,4 +146,161 @@ const fetchadminstockpoints = async (req, res) => {
         });
     }
 };
-module.exports = { addrawmateriallist, fetchadminstockpoints };
+
+const updateStockPoints = async (req, res) => {
+    try {
+        const { stockPointID, stockPointName, type } = req.body;
+
+        if (!stockPointID || !stockPointName || !type) {
+            return res.status(400).json({
+                success: false,
+                message: "stockPointID, stockPointName, and type are required"
+            });
+        }
+
+
+
+        const doc = await rawmateriallist.findOne({});
+
+        if (!doc) {
+            return res.status(404).json({
+                success: false,
+                message: "No stock point data found"
+            });
+        }
+        var existingPoint;
+        var duplicateName;
+        if (type === "rawmaterials") {
+            existingPoint = doc.rawmaterials.find(
+                item => item.rawMaterialID === stockPointID,
+                 duplicateName = doc.rawmaterials.some(
+                    item =>
+                        item.rawMaterialID !== stockPointID &&
+                        item.rawMaterialName.toLowerCase() === stockPointName.toLowerCase()
+                )
+            );
+        }
+        if (type === "feedBags") {
+            existingPoint = doc.feedBags.find(
+                item => item.feedBagID === stockPointID,
+                 duplicateName = doc.feedBags.some(
+                    item =>
+                        item.feedBagID !== stockPointID &&
+                        item.feedBagName.toLowerCase() === stockPointName.toLowerCase()
+                )
+            );
+        }
+        if (type === "stockPoints") {
+            existingPoint = doc.stockPoints.find(
+                item => item.stockPointID === stockPointID,
+                duplicateName = doc.stockPoints.some(
+                    item =>
+                        item.stockPointID !== stockPointID &&
+                        item.stockPointName.toLowerCase() === stockPointName.toLowerCase()
+                )
+            );
+        }
+
+            if (!existingPoint) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Stock point not found"
+                });
+            }
+
+           
+
+            if (duplicateName) {
+                return res.status(400).json({
+                    success: false,
+                    message: "A stock point with that name already exists"
+                });
+            }
+
+            if (type === "rawmaterials") {
+                await rawmateriallist.updateOne(
+                    { _id: doc._id, "rawmaterials.rawMaterialID": stockPointID },
+                    { $set: { "rawmaterials.$.rawMaterialName": stockPointName } }
+                );
+            } else if (type === "feedBags") {
+                await rawmateriallist.updateOne(
+                    { _id: doc._id, "feedBags.feedBagID": stockPointID },
+                    { $set: { "feedBags.$.feedBagName": stockPointName } }
+                );
+            } else {
+                await rawmateriallist.updateOne(
+                    { _id: doc._id, "stockPoints.stockPointID": stockPointID },
+                    { $set: { "stockPoints.$.stockPointName": stockPointName } }
+                );
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Stock point updated successfully"
+            });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({
+                message: "Internal server error"
+            });
+        }
+    };
+
+    const deleteStockPoints = async (req, res) => {
+        try {
+            const { stockPointID,type } = req.body;
+
+            if (!stockPointID || !type) {
+                return res.status(400).json({
+                    success: false,
+                    message: "stockPointID and type are required"
+                });
+            }
+
+            const doc = await rawmateriallist.findOne({});
+
+            if (!doc) {
+                return res.status(404).json({
+                    success: false,
+                    message: "No stock point data found"
+                });
+            }
+            let exists;
+            let pullQuery;
+
+            if (type === "rawmaterials") {
+                exists = doc.rawmaterials.some(
+                    item => item.rawMaterialID === stockPointID
+                );
+                pullQuery = { rawmaterials: { rawMaterialID: stockPointID } };
+            } else if (type === "feedBags") {
+                exists = doc.feedBags.some(
+                    item => item.feedBagID === stockPointID
+                );
+                pullQuery = { feedBags: { feedBagID: stockPointID } };
+            } else if (type === "stockPoints") {
+                exists = doc.stockPoints.some(
+                    item => item.stockPointID === stockPointID
+                );
+                pullQuery = { stockPoints: { stockPointID } };
+            } else {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid type. Must be one of stockPoints, rawmaterials, feedBags"
+                });
+            }
+            
+
+            return res.status(200).json({
+                success: true,
+                message: "Stock point deleted successfully"
+            });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({
+                message: "Internal server error"
+            });
+        }
+    };
+
+    module.exports = { addrawmateriallist, fetchadminstockpoints, updateStockPoints, deleteStockPoints };
