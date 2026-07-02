@@ -297,7 +297,10 @@ const updateStockPoints = async (req, res) => {
                     message: "Stock point not found"
                 });
             }
-
+            await rawmateriallist.updateOne(
+                { _id: doc._id },
+                { $pull: pullQuery }
+            );
             await rawmateriallist.updateOne(
                 { _id: doc._id },
                 { $pull: { stockPoints: { stockPointID } } }
