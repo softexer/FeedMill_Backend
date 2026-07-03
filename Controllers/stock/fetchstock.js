@@ -1,5 +1,7 @@
 
 var StockData = require('../../app/Models/addstock.js');
+var rawmateriallist = require('../../app/Models/rawMateriallist')
+
 //var fetchreceivedstocksdata = async (req, res) => {
     exports.fetchreceivedstocksdata = async (req, res) => {
     try {
@@ -47,11 +49,12 @@ var StockData = require('../../app/Models/addstock.js');
                 message: "Stock entry not found"
             });
         }
-
+  const adminData = await rawmateriallist.findOne({});
         res.json({
             success: true,
             message: "Stock entry fetched successfully",
-            data: stockEntry
+            data: stockEntry,
+             rawmaterialData: adminData
         });
 
     } catch (error) {
