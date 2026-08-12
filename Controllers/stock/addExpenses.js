@@ -24,7 +24,7 @@ const addPurchasedStock = async (req, res) => {
             });
         }
         const {
-            stockPoint,
+            stockPointName,
             expenseCategory,
             amount,
             expenseDate,
@@ -33,7 +33,7 @@ const addPurchasedStock = async (req, res) => {
         } = params;
 
         // Validation
-        if (!stockPoint || !expenseCategory || !amount || !expenseDate) {
+        if (!stockPointName || !expenseCategory || !amount || !expenseDate) {
             return res.status(400).json({
                 success: false,
                 message: 'Missing required fields'
@@ -49,7 +49,7 @@ const addPurchasedStock = async (req, res) => {
 
         // TODO: Save to database
         const expense = await ExpenseModel.create({
-          stockPoint,
+          stockPointName,
           expenseCategory,
           amount,
           expenseDate,
