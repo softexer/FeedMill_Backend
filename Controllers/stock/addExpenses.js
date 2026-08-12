@@ -57,7 +57,7 @@ const addPurchasedStock = async (req, res) => {
             const imageid = "exp@" + idb.GenerateIDS(9);
             const filename = imageid + file.name;
             const filemvpath = `./public/images/expenses/${filename}`;
-            const filedbpath = `/images/expenses/${filename}`;
+             filedbpath = `/images/expenses/${filename}`;
 
             // MOVE FILE (PROMISE SAFE)
             await new Promise((resolve, reject) => {
@@ -65,7 +65,7 @@ const addPurchasedStock = async (req, res) => {
             });
 
         }
-
+console.log("filedbpath", filedbpath)
         // TODO: Save to database
         const expense = await ExpenseModel.create({
             stockPointName,
