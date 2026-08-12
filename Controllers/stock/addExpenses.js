@@ -2,6 +2,8 @@
 
 
 const ExpenseModel = require('../../app/Models/expenses.js');
+var idb = require('../core/generateID');
+
 
 const addPurchasedStock = async (req, res) => {
     // Add Expense
