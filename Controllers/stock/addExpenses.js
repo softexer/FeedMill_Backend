@@ -48,9 +48,12 @@ const addPurchasedStock = async (req, res) => {
                 message: 'Amount must be greater than 0'
             });
         }
-        var   filedbpath = ""
-        if (req.files && req.files.image) {
-            const file = req.files.image;
+        var   filedbpath = "";
+                    console.log("file222", req.files)
+
+        if (req.files && req.files.attachment) {
+            console.log("file", req.files.attachment)
+            const file = req.files.attachment;
             const imageid = "exp@" + idb.GenerateIDS(9);
             const filename = imageid + file.name;
             const filemvpath = `./public/images/expenses/${filename}`;
