@@ -3,6 +3,7 @@ var router = express.Router();
 var ReceviedStock = require('../Controllers/stock/addstock');
 var fetchReceivedStock = require('../Controllers/stock/fetchstock');
 var adminstcokpoints = require('../Controllers/stock/addrawmaterial')
+var expensespoint = require('../Controllers/stock/addExpenses')
 
 var fileupload = require('express-fileupload');
 router.use(fileupload({ limits: { fileSize: 50 * 1024 * 1024 } }));
@@ -23,5 +24,9 @@ router.put("/updatestockpoints", (req, res) => {
 })
 router.delete("/deletestockpoints", (req, res) => {
     adminstcokpoints.deleteStockPoints(req, res)
+})
+
+router.post("/addexpenses", (req, res) => {
+    expensespoint.addPurchasedStock(req, res)
 })
 module.exports = router;
