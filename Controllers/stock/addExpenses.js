@@ -3,7 +3,7 @@
 
 const ExpenseModel = require('../../app/Models/expenses.js');
 
-exports.addPurchasedStock = async (req, res) => {
+const addPurchasedStock = async (req, res) => {
 // Add Expense
     try {
 
