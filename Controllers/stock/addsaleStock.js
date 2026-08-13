@@ -22,12 +22,7 @@ const addsalestockdata = async (req, res) => {
             batchNumber
         } = req.body;
         var params = req.body;
-        if (!outwardType || !stockPointName || !rawMaterialID || !rawMaterialName || !quantity || !rate || !totalSaleAmount  || !date || !remarks) {
-            return res.status(400).json({
-                success: false,
-                message: "All fields are required"
-            });
-        }
+       
         // INSERT DATA
         var rawmaterialarray = [];
 
