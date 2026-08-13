@@ -9,7 +9,7 @@ const saleStockSchema = new mongoose.Schema(
         },
         stockPointName: {
             type: String,
-            required: true,
+            required: false,
         },
         rawmaterials: [
             {
@@ -53,19 +53,19 @@ const saleStockSchema = new mongoose.Schema(
         },
         productionUnit: {
             type: String,
-            required: true
+            required: false
         },
         finishedProduct: {
             type: String,
-            required: true
+            required: false
         },
         producedQuantity: {
             type: Number,
-            required: true
+            required: false
         },
         batchNumber: {
             type: String,
-            required: true,
+            required: false,
             unique: true
         },
     },
