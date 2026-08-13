@@ -11,42 +11,62 @@ const saleStockSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        rawMaterialID:{
-            type: String,
-            required: true,
-        },
-        rawMaterialName: {
-            type: String,
-            required: true,
-        },
-        quantity: {
-            type: Number,
-            required: true,
-            default: 0,
-        },
-        rate: {
-            type: Number,
-            required: true,
-            default: 0,
-        },
-        totalSaleAmount: {
-            type: Number,
-            required: true,
-            default: 0,
-        },
+        rawmaterials: [
+            {
+                rawMaterialID: String,
+                rawMaterialName: {
+                    type: String,
+                    unique: true
+                },
+                quantity: {
+                    type: Number,
+                    required: true,
+                    default: 0,
+                },
+                rate: {
+                    type: Number,
+                    required: true,
+                    default: 0,
+                },
+                totalSaleAmount: {
+                    type: Number,
+                    required: true,
+                    default: 0,
+                },
+            }
+        ],
+
+
         customerName: {
             type: String,
-            required: true,
-            trim: true,
+            required: false,
+
         },
         date: {
             type: String,
             required: true,
-           
+
         },
         remarks: {
             type: String,
             trim: true,
+        },
+        productionUnit: {
+            type: String,
+            required: true
+        },
+        finishedProduct: {
+            type: String,
+            required: true
+        },
+        producedQuantity: {
+            type: Number,
+            required: true
+        },
+        batchNumber: {
+            type: String,
+            required: true,
+            unique: true
         },
     },
     { timestamps: true }

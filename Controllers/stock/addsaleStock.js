@@ -15,18 +15,35 @@ const addsalestockdata = async (req, res) => {
             customerName,
             date,
             remarks,
-            // productionUnit,
-            // finishedProduct,
-            
+            rawmaterials = [],
+            producedQuantity,
+            productionUnit,
+            finishedProduct,
+            batchNumber
         } = req.body;
         var params = req.body;
-        if (!outwardType || !stockPointName || !rawMaterialID || !rawMaterialName || !quantity || !rate || !totalSaleAmount || !customerName || !date || !remarks) {
+        if (!outwardType || !stockPointName || !rawMaterialID || !rawMaterialName || !quantity || !rate || !totalSaleAmount  || !date || !remarks) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
             });
         }
         // INSERT DATA
+        var rawmaterialarray = [];
+
+           for (var i = 0; i < rawmaterials.length; i++) {
+                    const point = rawmaterials[i];
+                    const rawMaterialName = typeof point === "string"
+                        ? point
+                        : point.rawMaterialName || point.rawmaterialname || point.name;
+                    rawmaterialarray.push({
+                        rawMaterialID: rawMaterialID,
+                        rawMaterialName: rawMaterialName,
+                        quantity:quantity || 0,
+                        rate: rate || 0,
+                        totalSaleAmount: totalSaleAmount || 0,
+                    });
+                }
 
 
         if (params.outwardType == "Sale") {
@@ -34,16 +51,26 @@ const addsalestockdata = async (req, res) => {
                 SalestockID: "sale@" + idb.GenerateIDS(5),
                 outwardType: params.outwardType,
                 stockPointName: params.stockPointName,
-                rawMaterialID: params.rawMaterialID,
-                rawMaterialName: params.rawMaterialName,
-                quantity: params.quantity,
-                rate: params.rate,
-                totalSaleAmount: params.totalSaleAmount,
+                rawmaterials: rawmaterialarray,
                 customerName: params.customerName,
                 date: params.date,
                 remarks: params.remarks
             });
+        }else{
+            await SaleStockData.create({
+                SalestockID: "sale@" + idb.GenerateIDS(5),
+                outwardType: params.outwardType,
+                productionUnit: params.productionUnit,
+                finishedProduct: params.finishedProduct,
+                batchNumber: params.batchNumber,
+                rawmaterials: rawmaterialarray,
+                producedQuantity: params.producedQuantity,
+                date: params.date,
+                remarks: params.remarks
+            });
         }
+                
+        
 
 
 
