@@ -17,7 +17,7 @@ const saleStockSchema = new mongoose.Schema(
                 rawMaterialID: String,
                 rawMaterialName: {
                     type: String,
-                    unique: true
+                    unique: false
                 },
                 quantity: {
                     type: Number,
