@@ -65,7 +65,7 @@ const saleStockSchema = new mongoose.Schema(
         producedQuantity: {
             type: Number,
             required: false,
-            default:""
+            default:0
         },
         batchNumber: {
             type: String,
