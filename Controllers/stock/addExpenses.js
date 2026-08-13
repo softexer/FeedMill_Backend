@@ -48,8 +48,8 @@ const addPurchasedStock = async (req, res) => {
                 message: 'Amount must be greater than 0'
             });
         }
-        var   filedbpath = "";
-                    console.log("file222", req.files)
+        var filedbpath = "";
+        console.log("file222", req.files)
 
         if (req.files && req.files.image) {
             console.log("file", req.files.image)
@@ -57,7 +57,7 @@ const addPurchasedStock = async (req, res) => {
             const imageid = "exp@" + idb.GenerateIDS(9);
             const filename = imageid + file.name;
             const filemvpath = `./public/images/expenses/${filename}`;
-             filedbpath = `/images/expenses/${filename}`;
+            filedbpath = `/images/expenses/${filename}`;
 
             // MOVE FILE (PROMISE SAFE)
             await new Promise((resolve, reject) => {
@@ -65,7 +65,7 @@ const addPurchasedStock = async (req, res) => {
             });
 
         }
-console.log("filedbpath", filedbpath)
+        console.log("filedbpath", filedbpath)
         // TODO: Save to database
         const expense = await ExpenseModel.create({
             stockPointName,
@@ -73,7 +73,7 @@ console.log("filedbpath", filedbpath)
             amount,
             expenseDate,
             description,
-            attachment:filedbpath,
+            attachment: filedbpath,
         });
 
         res.status(200).json({
