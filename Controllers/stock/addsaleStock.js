@@ -18,8 +18,8 @@ const addsalestockdata = async (req, res) => {
             // productionUnit,
             // finishedProduct,
             
-        } = params;
-
+        } = req.body;
+        var params = req.body;
         if (!outwardType || !stockPointName || !rawMaterialID || !rawMaterialName || !quantity || !rate || !totalSaleAmount || !customerName || !date || !remarks) {
             return res.status(400).json({
                 success: false,
