@@ -70,9 +70,9 @@ const saleStockSchema = new mongoose.Schema(
         batchNumber: {
             type: String,
             required: false,
-            default:"",
-            unique: true
+            default:""
         },
+        
     },
     { timestamps: true }
 );
