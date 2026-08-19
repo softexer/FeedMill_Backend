@@ -28,7 +28,7 @@ const addtransfersalestockdata = async (req, res) => {
             materialType,
             material,
             quantity: quantity || 0,
-            date: date ? new Date(date) : new Date(),
+            date: date,
             vehicleNumber,
             driverName,
             remarks

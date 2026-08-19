@@ -34,14 +34,13 @@ const TransferSaleStockSchema =  new mongoose.Schema({
 
     quantity: {
         type: Number,
-        required: False,
+        required: false,
         default: 0
     },
 
     date: {
-        type: Date,
-        required: true,
-        default: () => new Date()
+        type: String,
+        required: false
     },
 
      vehicleNumber: { type: String, trim: true },
