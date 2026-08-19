@@ -34,8 +34,8 @@ const addtransfersalestockdata = async (req, res) => {
             remarks
         });
 
-        return res.status(201).json({
-            success: true,
+        return res.status(200).json({
+            response: 3,
             message: "Stock transfer recorded successfully",
             data: newTransfer
         });
