@@ -39,4 +39,8 @@ router.post("/addsalestock", (req, res) => {
 router.post("/addtransfersalestock", (req, res) => {
     transfersalestockendpoint.addtransfersalestockdata(req, res)
 })
+
+router.post("/transactions", (req, res) => {
+    transfersalestockendpoint.gettransfersalestockdata(req, res)
+})
 module.exports = router;
