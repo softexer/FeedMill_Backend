@@ -173,7 +173,7 @@ const gettransfersalestockdata = async (req, res) => {
             results.push({
                 _id: item._id,
                 type: "Expense",
-                title: item.title || item.expenseType,
+                title: item.expenseCategory || item.expenseType,
                 location: item.stockPointName,
                 quantity: item.quantity ? `${item.quantity} KG` : 0,
                 amount: item.amount,
