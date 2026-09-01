@@ -89,13 +89,13 @@ const addsalestockdata = async (req, res) => {
                 { new: true }
             );
 
-            if (!updatedStock) {
+            // if (!updatedStock) {
 
-                return res.status(200).json({
-                    response: 3,
-                    message: `Insufficient stock for raw material: ${rawMaterialName}`
-                });
-            }
+            //     return res.status(200).json({
+            //         response: 3,
+            //         message: `Insufficient stock for raw material: ${rawMaterialName}`
+            //     });
+            // }
         }
 
 
