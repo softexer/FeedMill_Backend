@@ -38,19 +38,19 @@ const addsalestockdata = async (req, res) => {
         // INSERT DATA
         var rawmaterialarray = [];
 
-        for (var i = 0; i < rawmaterials.length; i++) {
-            const point = rawmaterials[i];
-            const rawMaterialName = typeof point === "string"
-                ? point
-                : point.rawMaterialName || point.rawmaterialname || point.name;
-            rawmaterialarray.push({
-                rawMaterialID: rawMaterialID,
-                rawMaterialName: rawMaterialName,
-                quantity: quantity,
-                rate: rate,
-                totalSaleAmount: totalSaleAmount,
-            });
-        }
+        // for (var i = 0; i < rawmaterials.length; i++) {
+        //     const point = rawmaterials[i];
+        //     const rawMaterialName = typeof point === "string"
+        //         ? point
+        //         : point.rawMaterialName || point.rawmaterialname || point.name;
+        //     rawmaterialarray.push({
+        //         rawMaterialID: rawMaterialID,
+        //         rawMaterialName: rawMaterialName,
+        //         quantity: quantity,
+        //         rate: rate,
+        //         totalSaleAmount: totalSaleAmount,
+        //     });
+        // }
 
 
         for (var i = 0; i < rawmaterials.length; i++) {
