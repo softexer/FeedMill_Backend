@@ -22,17 +22,14 @@ const saleStockSchema = new mongoose.Schema(
                 quantity: {
                     type: Number,
                     required: true,
-                    default: 0,
                 },
                 rate: {
                     type: Number,
                     required: true,
-                    default: 0,
                 },
                 totalSaleAmount: {
                     type: Number,
                     required: true,
-                    default: 0,
                 },
             }
         ],

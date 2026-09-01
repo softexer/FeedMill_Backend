@@ -1,17 +1,29 @@
 var SaleStockData = require('../../app/Models/saleStock');
 var idb = require('../core/generateID');
-
+var AddStocks = require('../../app/Models/addstock');
 const addsalestockdata = async (req, res) => {
     try {
 
+        // const {
+        //     outwardType,
+        //     stockPointName,
+        //     rawMaterialID,
+        //     rawMaterialName,
+        //     quantity,
+        //     rate,
+        //     totalSaleAmount,
+        //     customerName,
+        //     date,
+        //     remarks,
+        //     rawmaterials = [],
+        //     producedQuantity,
+        //     productionUnit,
+        //     finishedProduct,
+        //     batchNumber
+        // } = req.body;
+
         const {
             outwardType,
-            stockPointName,
-            rawMaterialID,
-            rawMaterialName,
-            quantity,
-            rate,
-            totalSaleAmount,
             customerName,
             date,
             remarks,
@@ -52,6 +64,8 @@ const addsalestockdata = async (req, res) => {
             const itemQuantity = (typeof point === "object" && point.quantity) || quantity;
             const itemRate = (typeof point === "object" && point.rate) || rate;
             const itemTotalAmount = itemQuantity * itemRate;
+
+            console.log("data",itemQuantity,itemRate)
 
             rawmaterialarray.push({
                 rawMaterialID: itemRawMaterialID,
