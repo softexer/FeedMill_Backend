@@ -22,23 +22,69 @@ const addsalestockdata = async (req, res) => {
             batchNumber
         } = req.body;
         var params = req.body;
-       
+
         // INSERT DATA
         var rawmaterialarray = [];
 
-           for (var i = 0; i < rawmaterials.length; i++) {
-                    const point = rawmaterials[i];
-                    const rawMaterialName = typeof point === "string"
-                        ? point
-                        : point.rawMaterialName || point.rawmaterialname || point.name;
-                    rawmaterialarray.push({
-                        rawMaterialID: rawMaterialID,
-                        rawMaterialName: rawMaterialName,
-                        quantity:quantity || 0,
-                        rate: rate || 0,
-                        totalSaleAmount: totalSaleAmount || 0,
-                    });
-                }
+        for (var i = 0; i < rawmaterials.length; i++) {
+            const point = rawmaterials[i];
+            const rawMaterialName = typeof point === "string"
+                ? point
+                : point.rawMaterialName || point.rawmaterialname || point.name;
+            rawmaterialarray.push({
+                rawMaterialID: rawMaterialID,
+                rawMaterialName: rawMaterialName,
+                quantity: quantity,
+                rate: rate,
+                totalSaleAmount: totalSaleAmount,
+            });
+        }
+
+
+        for (var i = 0; i < rawmaterials.length; i++) {
+            const point = rawmaterials[i];
+            const rawMaterialName = typeof point === "string"
+                ? point
+                : point.rawMaterialName || point.rawmaterialname || point.name;
+
+            // If each item carries its own qty/rate/id, prefer those over the outer ones
+            const itemRawMaterialID = (typeof point === "object" && point.rawMaterialID) || rawMaterialID;
+            const itemQuantity = (typeof point === "object" && point.quantity) || quantity;
+            const itemRate = (typeof point === "object" && point.rate) || rate;
+            const itemTotalAmount = itemQuantity * itemRate;
+
+            rawmaterialarray.push({
+                rawMaterialID: itemRawMaterialID,
+                rawMaterialName: rawMaterialName,
+                quantity: itemQuantity,
+                rate: itemRate,
+                totalSaleAmount: itemTotalAmount,
+            });
+
+            const updatedStock = await AddStocks.findOneAndUpdate(
+                {
+                    rawMaterialName: rawMaterialName,
+                    quantity: { $gte: itemQuantity }
+                },
+                {
+                    $inc: {
+                        quantity: -itemQuantity,
+                        totalAmount: -itemTotalAmount
+                    }
+                },
+                { new: true }
+            );
+
+            if (!updatedStock) {
+
+                return res.status(200).json({
+                    response: 3,
+                    message: `Insufficient stock for raw material: ${rawMaterialName}`
+                });
+            }
+        }
+
+
 
 
         if (params.outwardType == "Sale") {
@@ -51,7 +97,7 @@ const addsalestockdata = async (req, res) => {
                 date: params.date,
                 remarks: params.remarks
             });
-        }else{
+        } else {
             await SaleStockData.create({
                 SalestockID: "sale@" + idb.GenerateIDS(5),
                 outwardType: params.outwardType,
@@ -64,8 +110,8 @@ const addsalestockdata = async (req, res) => {
                 remarks: params.remarks
             });
         }
-                
-        
+
+
 
 
 
