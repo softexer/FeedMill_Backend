@@ -60,9 +60,9 @@ const addsalestockdata = async (req, res) => {
                 : point.rawMaterialName || point.rawmaterialname || point.name;
 
             // If each item carries its own qty/rate/id, prefer those over the outer ones
-            const itemRawMaterialID = (typeof point === "object" && point.rawMaterialID) || rawMaterialID;
-            const itemQuantity = (typeof point === "object" && point.quantity) || quantity;
-            const itemRate = (typeof point === "object" && point.rate) || rate;
+            const itemRawMaterialID = (typeof point === "object" && point.rawMaterialID) || point.rawMaterialID;
+            const itemQuantity = (typeof point === "object" && point.quantity) || point.quantity;
+            const itemRate = (typeof point === "object" && point.rate) || point.rate;
             const itemTotalAmount = itemQuantity * itemRate;
 
             console.log("data",itemQuantity,itemRate)
