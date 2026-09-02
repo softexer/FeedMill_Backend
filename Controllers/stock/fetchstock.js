@@ -29,7 +29,7 @@ var rawmateriallist = require('../../app/Models/rawMateriallist')
     },
     {
         $group: {
-            _id: { $toLower: "$materialName" },
+            _id: "$materialName",
             totalQuantity: { $sum: "$quantity" },
             totalAmount: { $sum: "$totalAmount" }
         }
@@ -39,11 +39,18 @@ var rawmateriallist = require('../../app/Models/rawMateriallist')
             _id: 0,
             materialName: "$_id",
             totalQuantity: 1,
-            totalAmount: 1
+            totalAmount: 1,
+            unitPrice: {
+                $cond: [
+                    { $eq: ["$totalQuantity", 0] },
+                    0,
+                    { $divide: ["$totalAmount", "$totalQuantity"] }
+                ]
+            }
         }
     }
 ]);
-        if (!stockEntry) {
+        if (!stockEntry || stockEntry.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: "Stock entry not found"
