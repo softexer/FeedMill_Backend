@@ -71,8 +71,6 @@ exports.fetchreceivedstocksdata = async (req, res) => {
                                 type: "finishedProduct",
                                 materialName: "$_id",
                                 totalQuantity: 1,
-                                totalAmount: 0,
-                                unitPrice:0
                             }
                         }
                     ]
@@ -85,11 +83,15 @@ exports.fetchreceivedstocksdata = async (req, res) => {
                 message: "Stock entry not found"
             });
         }
+        const rawMaterials = stockEntry.filter(item => item.type === "rawMaterial");
+const finishedProducts = stockEntry.filter(item => item.type === "finishedProduct");
+
         const adminData = await rawmateriallist.findOne({});
         res.json({
             success: true,
             message: "Stock entry fetched successfully",
-            data: stockEntry,
+            data: rawMaterials,
+            Feedbagsdata: finishedProducts,
             rawmaterialData: adminData
         });
 
