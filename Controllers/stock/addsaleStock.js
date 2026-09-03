@@ -86,7 +86,7 @@ const addsalestockdata = async (req, res) => {
                         totalAmount: -itemTotalAmount
                     }
                 },
-                { new: true }
+                 { returnDocument: "after" }    
             );
 
             // if (!updatedStock) {
