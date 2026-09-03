@@ -34,9 +34,15 @@ const addsalestockdata = async (req, res) => {
             batchNumber
         } = req.body;
         var params = req.body;
-
+        var spoint;
         // INSERT DATA
         var rawmaterialarray = [];
+        if (params.outwardType == "Sale") {
+            spoint = params.stockPointName;
+        }
+        else {
+            spoint = params.productionUnit;
+        }
 
         // for (var i = 0; i < rawmaterials.length; i++) {
         //     const point = rawmaterials[i];
@@ -65,7 +71,7 @@ const addsalestockdata = async (req, res) => {
             const itemRate = (typeof point === "object" && point.rate) || point.rate;
             const itemTotalAmount = itemQuantity * itemRate;
 
-            console.log("data",itemQuantity,itemRate)
+            console.log("data", itemQuantity, itemRate)
 
             rawmaterialarray.push({
                 rawMaterialID: itemRawMaterialID,
@@ -75,19 +81,49 @@ const addsalestockdata = async (req, res) => {
                 totalSaleAmount: itemTotalAmount,
             });
 
-            const updatedStock = await AddStocks.findOneAndUpdate(
-                {
-                    rawMaterialName: rawMaterialName,
-                    quantity: { $gte: itemQuantity }
-                },
-                {
-                    $inc: {
-                        quantity: -itemQuantity,
-                        totalAmount: -itemTotalAmount
-                    }
-                },
-                 { returnDocument: "after" }    
-            );
+            const batches = await AddStocks.find({
+                materialName: rawMaterialName,
+                stockPoint: spoint,
+                quantity: { $gt: 0 }
+            }).sort({ createdAt: 1 }); // oldest batch first (FIFO)
+
+            const totalAvailable = batches.reduce((sum, b) => sum + b.quantity, 0);
+
+            if (totalAvailable < itemQuantity) {
+                throw new Error(`Insufficient stock for "${rawMaterialName}" at "${spoint}". Needed: ${itemQuantity}, Available: ${totalAvailable}`);
+            }
+
+            let remaining = itemQuantity;
+            const deductedBatches = [];
+
+            for (const batch of batches) {
+                if (remaining <= 0) break;
+
+                const takeFromThisBatch = Math.min(batch.quantity, remaining);
+                const amountDeducted = takeFromThisBatch * batch.ratePerUnit;
+
+                const updatedStock = await AddStocks.findOneAndUpdate(
+                    {
+                        _id: batch._id,
+                        quantity: { $gte: takeFromThisBatch }
+                    },
+                    {
+                        $inc: {
+                            quantity: -takeFromThisBatch,
+                            totalAmount: -itemTotalAmount
+                        }
+                    },
+                    { returnDocument: "after" }
+                );
+
+                // if (!updatedStock) {
+                //     throw new Error(`Stock batch ${batch._id} changed concurrently. Please retry.`);
+                // }
+
+                deductedBatches.push({ batchId: batch._id, taken: takeFromThisBatch, ratePerUnit: batch.ratePerUnit });
+                remaining -= takeFromThisBatch;
+            }
+
 
             // if (!updatedStock) {
 
