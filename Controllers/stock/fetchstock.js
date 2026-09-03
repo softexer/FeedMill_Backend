@@ -51,8 +51,6 @@ exports.fetchreceivedstocksdata = async (req, res) => {
                 }
             },
             {
-                // Pulls in results from the finished-products collection into
-                // the SAME result stream, in this one query
                 $unionWith: {
                     coll: "salestocks", // <-- actual MongoDB collection name (check with FinishedProductStock.collection.name)
                     pipeline: [
@@ -64,15 +62,17 @@ exports.fetchreceivedstocksdata = async (req, res) => {
                         {
                             $group: {
                                 _id: "$finishedProduct",
-                                totalProducedQuantity: { $sum: "$producedQuantity" }
+                                totalQuantity: { $sum: "$producedQuantity" }
                             }
                         },
                         {
                             $project: {
                                 _id: 0,
                                 type: "finishedProduct",
-                                finishedProductName: "$_id",
-                                totalProducedQuantity: 1
+                                materialName: "$_id",
+                                totalQuantity: 1,
+                                totalAmount: 0,
+                                unitPrice:0
                             }
                         }
                     ]
