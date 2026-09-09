@@ -55,7 +55,7 @@ exports.fetchreceivedstocksdata = async (req, res) => {
                     coll: "salestocks", // <-- actual MongoDB collection name (check with FinishedProductStock.collection.name)
                     pipeline: [
                         {
-                            $match: { outwardType: "Production" },
+                            $match: { outwardType: "Production",productionUnit: stockPoint } // <-- adjust to your finished product model,
 
 
                         },
