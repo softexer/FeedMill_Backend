@@ -70,8 +70,8 @@ const addsalestockdata = async (req, res) => {
                 const outward = String(params.outwardType || "").trim().toLowerCase();
                 const saleStocks = await SaleStockData.find({
                     finishedProduct: rawMaterialName,
-                    stockPoint: spoint,
-                    producedQuantity: { $gt: 0 }
+                    productionUnit: spoint,
+                    // producedQuantity: { $gt: 0 }
                 }).sort({ createdAt: 1 });
 
                 console.log("SaleStock batches:", saleStocks);
@@ -87,7 +87,7 @@ const addsalestockdata = async (req, res) => {
                 if (totalSaleStock < itemQuantity) {
                     return res.status(200).json({
                         response: 0,
-                        message: `Insufficient stock for "${rawMaterialName}" at "${spoint}". Needed: ${itemQuantity}, Available: ${availableStock}`
+                        message: `Insufficient stock for "${rawMaterialName}" at "${spoint}". Needed: ${itemQuantity}, Available: ${totalSaleStock}`
                     });
                 }
 
