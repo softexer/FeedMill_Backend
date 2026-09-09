@@ -229,14 +229,16 @@ function getFormattedDate(date) {
 function formatExpenseDate(dateStr) {
     if (!dateStr) return null;
 
+    if (dateStr.includes(".")) {
+        return dateStr;
+    }
+
     const [day, month, year] = dateStr.split("/");
 
     const monthNames = [
         "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"
     ];
 
-    const monthIndex = parseInt(month, 10) - 1;
-
-    return `${day} ${monthNames[monthIndex]} ${year}`;
+    return `${day}.${monthNames[parseInt(month, 10) - 1]}.${year}`;
 }
