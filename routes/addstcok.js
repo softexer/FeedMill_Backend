@@ -89,29 +89,78 @@ function getPreviousDateRange(period) {
     return { start, end };
 }
 
-/**
- * Parses a "dd/mm/yyyy" string into a real JS Date object.
- * Used for SalesStock, Expenses, and TransferSaleStock, since all three
- * store their date as a dd/mm/yyyy string, not a native Date.
- */
+
 function parseDDMMYYYY(dateStr) {
     if (!dateStr) return null;
-    const [day, month, year] = dateStr.split("/");
-    if (!day || !month || !year) return null;
-    return new Date(`${year}-${month}-${day}`);
+
+    dateStr = String(dateStr).trim();
+
+    // Format: DD/MM/YYYY
+    if (dateStr.includes("/")) {
+        const [day, month, year] = dateStr.split("/");
+
+        return new Date(
+            Number(year),
+            Number(month) - 1,
+            Number(day)
+        );
+    }
+
+    // Format: DD.Mon.YYYY
+    // Example: 09.Sept.2026
+    if (dateStr.includes(".")) {
+        const [day, monthName, year] = dateStr.split(".");
+
+        const months = {
+            Jan: 0,
+            Feb: 1,
+            Mar: 2,
+            Apr: 3,
+            May: 4,
+            Jun: 5,
+            Jul: 6,
+            Aug: 7,
+            Sep: 8,
+            Sept: 8,
+            Oct: 9,
+            Nov: 10,
+            Dec: 11
+        };
+
+        const month = months[monthName];
+
+        if (month === undefined) return null;
+
+        return new Date(
+            Number(year),
+            month,
+            Number(day)
+        );
+    }
+
+    return null;
 }
 
-/**
- * Filters an array of documents down to only those whose given
- * string-date field falls within [start, end].
- */
+
+// function filterByStringDate(docs, dateFieldName, start, end) {
+//     return docs.filter(doc => {
+//         const parsed = parseDDMMYYYY(doc[dateFieldName]);
+//         if (!parsed) return false;
+//         return parsed >= start && parsed <= end;
+//     });
+// }
 function filterByStringDate(docs, dateFieldName, start, end) {
     return docs.filter(doc => {
         const parsed = parseDDMMYYYY(doc[dateFieldName]);
+
         if (!parsed) return false;
+
         return parsed >= start && parsed <= end;
+
     });
+
 }
+
 
 async function calculatePL(start, end) {
     // --------------------------------------------------
@@ -135,8 +184,8 @@ async function calculatePL(start, end) {
     salesStocks.forEach(sale => {
         const items = Array.isArray(sale.rawmaterials) ? sale.rawmaterials : [];
         items.forEach(item => {
-            const amount = item.amount || item.price || 0;
-            if ((item.category || "").toLowerCase() === "feedbags" || (item.materialType || "").toLowerCase() === "feedbags") {
+            const amount = item.amount || item.price || item.totalSaleAmount || 0;
+            if ((item.rawMaterialID || "").startsWith("feed@")) {
                 feedBagSales += amount;
             } else {
                 rawMaterialSales += amount;
@@ -224,395 +273,6 @@ router.get("/reports/profit-loss", async (req, res) => {
 });
 
 
-
-
-
-
-/**
- * ============================================================
- * DATE RANGE
- * ============================================================
- */
-
-function getDateRange(period) {
-    const now = new Date();
-    let start, end;
-
-    if (period === "LastMonth") {
-        start = new Date(
-            now.getFullYear(),
-            now.getMonth() - 1,
-            1
-        );
-
-        end = new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            0,
-            23,
-            59,
-            59,
-            999
-        );
-
-    } else if (period === "Last3Months") {
-        start = new Date(
-            now.getFullYear(),
-            now.getMonth() - 2,
-            1
-        );
-
-        end = new Date(
-            now.getFullYear(),
-            now.getMonth() + 1,
-            0,
-            23,
-            59,
-            59,
-            999
-        );
-
-    } else {
-        // ThisMonth
-        start = new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            1
-        );
-
-        end = new Date(
-            now.getFullYear(),
-            now.getMonth() + 1,
-            0,
-            23,
-            59,
-            59,
-            999
-        );
-    }
-
-    return {
-        start,
-        end
-    };
-}
-
-
-/**
- * ============================================================
- * PREVIOUS DATE RANGE
- * ============================================================
- */
-
-function getPreviousDateRange(period) {
-    const now = new Date();
-    let start, end;
-
-    if (period === "LastMonth") {
-
-        start = new Date(
-            now.getFullYear(),
-            now.getMonth() - 2,
-            1
-        );
-
-        end = new Date(
-            now.getFullYear(),
-            now.getMonth() - 1,
-            0,
-            23,
-            59,
-            59,
-            999
-        );
-
-    } else if (period === "Last3Months") {
-
-        start = new Date(
-            now.getFullYear(),
-            now.getMonth() - 5,
-            1
-        );
-
-        end = new Date(
-            now.getFullYear(),
-            now.getMonth() - 2,
-            0,
-            23,
-            59,
-            59,
-            999
-        );
-
-    } else {
-
-        // Previous month
-        start = new Date(
-            now.getFullYear(),
-            now.getMonth() - 1,
-            1
-        );
-
-        end = new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            0,
-            23,
-            59,
-            59,
-            999
-        );
-    }
-
-    return {
-        start,
-        end
-    };
-}
-
-
-/**
- * ============================================================
- * DD/MM/YYYY -> DATE
- * ============================================================
- */
-
-function parseDDMMYYYY(dateStr) {
-
-    if (!dateStr) {
-        return null;
-    }
-
-    const [day, month, year] = dateStr.split("/");
-
-    if (!day || !month || !year) {
-        return null;
-    }
-
-    return new Date(
-        Number(year),
-        Number(month) - 1,
-        Number(day)
-    );
-}
-
-
-/**
- * ============================================================
- * FILTER STRING DATE
- * ============================================================
- */
-
-function filterByStringDate(
-    docs,
-    dateFieldName,
-    start,
-    end
-) {
-
-    return docs.filter(doc => {
-
-        const parsed = parseDDMMYYYY(
-            doc[dateFieldName]
-        );
-
-        if (!parsed) {
-            return false;
-        }
-
-        return (
-            parsed >= start &&
-            parsed <= end
-        );
-    });
-}
-
-
-/**
- * ============================================================
- * CALCULATE PROFIT & LOSS
- * ============================================================
- */
-
-async function calculatePL(start, end) {
-
-    // --------------------------------------------------------
-    // 1. ADD STOCK / PURCHASE
-    // --------------------------------------------------------
-
-    const addStocks = await AddStock.find({
-        createdAt: {
-            $gte: start,
-            $lte: end
-        }
-    }).lean();
-
-    const purchaseCost = addStocks.reduce(
-        (sum, item) =>
-            sum +
-            Number(
-                item.amount ||
-                item.price ||
-                0
-            ),
-        0
-    );
-
-
-    // --------------------------------------------------------
-    // 2. SALES
-    // --------------------------------------------------------
-
-    const allSalesStocks =
-        await SalesStock.find({}).lean();
-
-    const salesStocks =
-        filterByStringDate(
-            allSalesStocks,
-            "date",
-            start,
-            end
-        );
-
-    let feedBagSales = 0;
-    let rawMaterialSales = 0;
-
-    salesStocks.forEach(sale => {
-
-        const items =
-            Array.isArray(sale.rawmaterials)
-                ? sale.rawmaterials
-                : [];
-
-        items.forEach(item => {
-
-            const amount = Number(
-                item.amount ||
-                item.price ||
-                0
-            );
-
-            const category =
-                String(
-                    item.category || ""
-                ).toLowerCase();
-
-            const materialType =
-                String(
-                    item.materialType || ""
-                ).toLowerCase();
-
-            if (
-                category === "feedbags" ||
-                materialType === "feedbags"
-            ) {
-                feedBagSales += amount;
-            } else {
-                rawMaterialSales += amount;
-            }
-        });
-    });
-
-    const totalRevenue =
-        feedBagSales +
-        rawMaterialSales;
-
-
-    // --------------------------------------------------------
-    // 3. EXPENSES
-    // --------------------------------------------------------
-
-    const allExpenses =
-        await Expenses.find({}).lean();
-
-    const filteredExpenses =
-        filterByStringDate(
-            allExpenses,
-            "expenseDate",
-            start,
-            end
-        );
-
-    const operationalExpenses =
-        filteredExpenses.reduce(
-            (sum, exp) =>
-                sum +
-                Number(exp.amount || 0),
-            0
-        );
-
-
-    // --------------------------------------------------------
-    // 4. TRANSFER STOCK
-    // --------------------------------------------------------
-
-    const allTransfers =
-        await TransferSaleStock.find({}).lean();
-
-    const filteredTransfers =
-        filterByStringDate(
-            allTransfers,
-            "date",
-            start,
-            end
-        );
-
-    const transferCount =
-        filteredTransfers.length;
-
-    const transferQuantity =
-        filteredTransfers.reduce(
-            (sum, transfer) =>
-                sum +
-                Number(
-                    transfer.quantity || 0
-                ),
-            0
-        );
-
-
-    // --------------------------------------------------------
-    // FINAL CALCULATION
-    // --------------------------------------------------------
-
-    const totalExpenses =
-        purchaseCost +
-        operationalExpenses;
-
-    const netProfit =
-        totalRevenue -
-        totalExpenses;
-
-
-    return {
-
-        totalRevenue,
-
-        totalExpenses,
-
-        purchaseCost,
-
-        operationalExpenses,
-
-        feedBagSales,
-
-        rawMaterialSales,
-
-        netProfit,
-
-        transferCount,
-
-        transferQuantity
-    };
-}
-
-
-/**
- * ============================================================
- * FORMAT AMOUNT
- * ============================================================
- */
-
 function formatAmount(amount) {
 
     return Number(
@@ -624,11 +284,6 @@ function formatAmount(amount) {
 }
 
 
-/**
- * ============================================================
- * FORMAT DATE
- * ============================================================
- */
 
 function formatDate(date) {
 
@@ -647,11 +302,6 @@ function formatDate(date) {
 }
 
 
-/**
- * ============================================================
- * PDF ROW
- * ============================================================
- */
 
 function addPDFRow(
     doc,
@@ -690,160 +340,154 @@ function addPDFRow(
 }
 
 
-/**
- * ============================================================
- * EXISTING JSON API
- *
- * GET /reports/profit-loss?period=ThisMonth
- * ============================================================
- */
-
-router.get(
-    "/reports/profit-loss",
-    async (req, res) => {
-
-        try {
-
-            const {
-                period
-            } = req.query;
-
-            const selectedPeriod =
-                period || "ThisMonth";
 
 
-            // Current period
-            const {
-                start,
-                end
-            } = getDateRange(
-                selectedPeriod
-            );
+// router.get(
+//     "/reports/profit-loss",
+//     async (req, res) => {
 
-            const current =
-                await calculatePL(
-                    start,
-                    end
-                );
+//         try {
 
+//             const {
+//                 period
+//             } = req.query;
 
-            // Previous period
-            const {
-                start: prevStart,
-                end: prevEnd
-            } = getPreviousDateRange(
-                selectedPeriod
-            );
-
-            const previous =
-                await calculatePL(
-                    prevStart,
-                    prevEnd
-                );
+//             const selectedPeriod =
+//                 period || "ThisMonth";
 
 
-            // Percentage change
-            let percentChange = 0;
+//             // Current period
+//             const {
+//                 start,
+//                 end
+//             } = getDateRange(
+//                 selectedPeriod
+//             );
 
-            if (
-                previous.netProfit !== 0
-            ) {
-
-                percentChange =
-                    (
-                        (
-                            current.netProfit -
-                            previous.netProfit
-                        ) /
-                        Math.abs(
-                            previous.netProfit
-                        )
-                    ) * 100;
-
-            } else if (
-                current.netProfit !== 0
-            ) {
-
-                percentChange = 100;
-            }
+//             const current =
+//                 await calculatePL(
+//                     start,
+//                     end
+//                 );
 
 
-            percentChange =
-                Math.round(
-                    percentChange * 10
-                ) / 10;
+//             // Previous period
+//             const {
+//                 start: prevStart,
+//                 end: prevEnd
+//             } = getPreviousDateRange(
+//                 selectedPeriod
+//             );
+
+//             const previous =
+//                 await calculatePL(
+//                     prevStart,
+//                     prevEnd
+//                 );
 
 
-            return res.status(200).json({
+//             // Percentage change
+//             let percentChange = 0;
 
-                success: true,
+//             if (
+//                 previous.netProfit !== 0
+//             ) {
 
-                period:
-                    selectedPeriod,
+//                 percentChange =
+//                     (
+//                         (
+//                             current.netProfit -
+//                             previous.netProfit
+//                         ) /
+//                         Math.abs(
+//                             previous.netProfit
+//                         )
+//                     ) * 100;
 
-                dateRange: {
-                    start,
-                    end
-                },
+//             } else if (
+//                 current.netProfit !== 0
+//             ) {
 
-                data: {
+//                 percentChange = 100;
+//             }
 
-                    netProfit:
-                        current.netProfit,
 
-                    percentChange,
+//             percentChange =
+//                 Math.round(
+//                     percentChange * 10
+//                 ) / 10;
 
-                    trend:
-                        percentChange >= 0
-                            ? "up"
-                            : "down",
 
-                    totalRevenue:
-                        current.totalRevenue,
+//             return res.status(200).json({
 
-                    totalExpenses:
-                        current.totalExpenses,
+//                 success: true,
 
-                    purchaseCost:
-                        current.purchaseCost,
+//                 period:
+//                     selectedPeriod,
 
-                    operationalExpenses:
-                        current.operationalExpenses,
+//                 dateRange: {
+//                     start,
+//                     end
+//                 },
 
-                    feedBagSales:
-                        current.feedBagSales,
+//                 data: {
 
-                    rawMaterialSales:
-                        current.rawMaterialSales,
+//                     netProfit:
+//                         current.netProfit,
 
-                    transferCount:
-                        current.transferCount,
+//                     percentChange,
 
-                    transferQuantity:
-                        current.transferQuantity
-                }
-            });
+//                     trend:
+//                         percentChange >= 0
+//                             ? "up"
+//                             : "down",
 
-        } catch (error) {
+//                     totalRevenue:
+//                         current.totalRevenue,
 
-            console.error(
-                "Error generating P&L report:",
-                error
-            );
+//                     totalExpenses:
+//                         current.totalExpenses,
 
-            return res.status(500).json({
+//                     purchaseCost:
+//                         current.purchaseCost,
 
-                success: false,
+//                     operationalExpenses:
+//                         current.operationalExpenses,
 
-                message:
-                    "Internal server error",
+//                     feedBagSales:
+//                         current.feedBagSales,
 
-                error:
-                    error.message
-            });
-        }
-    }
-);
+//                     rawMaterialSales:
+//                         current.rawMaterialSales,
+
+//                     transferCount:
+//                         current.transferCount,
+
+//                     transferQuantity:
+//                         current.transferQuantity
+//                 }
+//             });
+
+//         } catch (error) {
+
+//             console.error(
+//                 "Error generating P&L report:",
+//                 error
+//             );
+
+//             return res.status(500).json({
+
+//                 success: false,
+
+//                 message:
+//                     "Internal server error",
+
+//                 error:
+//                     error.message
+//             });
+//         }
+//     }
+// );
 
 
 /**
