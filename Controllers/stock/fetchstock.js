@@ -84,7 +84,7 @@ exports.fetchreceivedstocksdata = async (req, res) => {
             });
         }
         const rawMaterials = stockEntry.filter(item => item.type === "rawMaterial");
-const finishedProducts = stockEntry.filter(item => item.type === "finishedProduct");
+        const finishedProducts = stockEntry.filter(item => item.type === "finishedProduct");
 
         const adminData = await rawmateriallist.findOne({});
         res.json({

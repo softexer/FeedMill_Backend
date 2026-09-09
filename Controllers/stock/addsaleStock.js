@@ -34,6 +34,7 @@ const addsalestockdata = async (req, res) => {
             batchNumber
         } = req.body;
         var params = req.body;
+        console.log("params", params)
         var spoint;
         // INSERT DATA
         var rawmaterialarray = [];
@@ -44,19 +45,7 @@ const addsalestockdata = async (req, res) => {
             spoint = params.productionUnit;
         }
 
-        // for (var i = 0; i < rawmaterials.length; i++) {
-        //     const point = rawmaterials[i];
-        //     const rawMaterialName = typeof point === "string"
-        //         ? point
-        //         : point.rawMaterialName || point.rawmaterialname || point.name;
-        //     rawmaterialarray.push({
-        //         rawMaterialID: rawMaterialID,
-        //         rawMaterialName: rawMaterialName,
-        //         quantity: quantity,
-        //         rate: rate,
-        //         totalSaleAmount: totalSaleAmount,
-        //     });
-        // }
+       
 
 
         for (var i = 0; i < rawmaterials.length; i++) {
@@ -86,7 +75,7 @@ const addsalestockdata = async (req, res) => {
                 stockPoint: spoint,
                 quantity: { $gt: 0 }
             }).sort({ createdAt: 1 }); // oldest batch first (FIFO)
-
+            console.log("batches", batches)
             const totalAvailable = batches.reduce((sum, b) => sum + b.quantity, 0);
 
             if (totalAvailable < itemQuantity) {
