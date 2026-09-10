@@ -90,12 +90,17 @@ const gettransfersalestockdata = async (req, res) => {
 
         // if (!type || type === "All" || type === "Outward") {
         const filter2 = {};
-        if (location) filter2.productionUnit = location;
+        if (location) {
+            filter2.$or = [
+            { productionUnit: location },
+            { stockPointName: location }
+            ];
+        }
         // if (search) filter2.material = { $regex: search, $options: "i" };
 
         const salesStocks = await SalesStock.find(filter2).lean();
 
-
+console.log("Sales Stocks:", salesStocks); // Log the fetched sales stocks for debugging
 
         salesStocks.forEach(sale => {
             const rawMaterialsList = Array.isArray(sale.rawmaterials) ? sale.rawmaterials : [];
