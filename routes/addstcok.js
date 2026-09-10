@@ -901,4 +901,142 @@ router.get(
 
 
 
+
+
+
+const XLSX = require("xlsx");
+const path = require("path");
+var StockData = require('../app/Models/addstock');
+
+
+router.get(
+    "/reports/totalstockdata",
+    async (req, res) => {
+
+        const stockEntry = await StockData.aggregate([
+            {
+                $group: {
+                    _id: {
+                        stockPoint: "$stockPoint",
+                        materialName: "$materialName"
+                    },
+                    totalQuantity: { $sum: "$quantity" },
+                    totalAmount: { $sum: "$totalAmount" }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    type: "rawMaterial",
+                    stockPoint: "$_id.stockPoint",
+                    materialName: "$_id.materialName",
+                    totalQuantity: 1,
+                    totalAmount: 1,
+                    unitPrice: {
+                        $cond: [
+                            { $eq: ["$totalQuantity", 0] },
+                            0,
+                            { $divide: ["$totalAmount", "$totalQuantity"] }
+                        ]
+                    }
+                }
+            },
+            {
+                $unionWith: {
+                    coll: "salestocks",
+                    pipeline: [
+                        {
+                            $match: {
+                                outwardType: "Production"
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: {
+                                    stockPoint: "$productionUnit",
+                                    materialName: "$finishedProduct"
+                                },
+                                totalQuantity: {
+                                    $sum: "$producedQuantity"
+                                }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                type: "finishedProduct",
+                                stockPoint: "$_id.stockPoint",
+                                materialName: "$_id.materialName",
+                                totalQuantity: 1,
+                                totalAmount: { $literal: 0 },
+                                unitPrice: { $literal: 0 }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]);
+
+        if (!stockEntry || stockEntry.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Stock entries not found"
+            });
+        }
+
+        // Convert MongoDB data to Excel rows
+        const excelData = stockEntry.map(item => ({
+            Type: item.type,
+            "Stock Point": item.stockPoint || "",
+            "Material Name": item.materialName || "",
+            "Total Quantity": item.totalQuantity || 0,
+            "Total Amount": item.totalAmount || 0,
+            "Unit Price": item.unitPrice || 0
+        }));
+
+        // Create worksheet
+        const ws = XLSX.utils.json_to_sheet(excelData);
+
+        // Create workbook
+        const wb = XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(
+            wb,
+            ws,
+            "Stock Data"
+        );
+
+        // Set column widths
+        ws["!cols"] = [
+            { wch: 18 }, // Type
+            { wch: 25 }, // Stock Point
+            { wch: 35 }, // Material Name
+            { wch: 18 }, // Total Quantity
+            { wch: 18 }, // Total Amount
+            { wch: 15 }  // Unit Price
+        ];
+
+        // Download Excel directly
+
+       
+        const excelBuffer = XLSX.write(wb, {
+            type: "buffer",
+            bookType: "xlsx"
+        });
+
+        // Direct download
+        res.setHeader(
+            "Content-Disposition",
+            'attachment; filename="Stock_Data.xlsx"'
+        );
+
+        res.setHeader(
+            "Content-Type",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+
+        return res.send(excelBuffer);
+    })
+
+
 module.exports = router;

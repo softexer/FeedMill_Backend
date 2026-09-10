@@ -111,7 +111,7 @@ const gettransfersalestockdata = async (req, res) => {
                     type: "Outward",
                     title: `${rm.rawMaterialName || "Material"} (Sold)`,
                     location: sale.warehouse,
-                    quantity: `-${rm.quantity} KG`,
+                    quantity: `${rm.quantity} KG`,
                     amount: rm.totalSaleAmount || rm.price || 0,
                     date: getFormattedDate(sale.createdAt),
                     source: "SalesStock"
