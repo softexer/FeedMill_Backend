@@ -964,7 +964,7 @@ router.get(
                         {
                             $project: {
                                 _id: 0,
-                                type: "finishedProduct",
+                                type: "FeedBags",
                                 stockPoint: "$_id.stockPoint",
                                 materialName: "$_id.materialName",
                                 totalQuantity: 1,
